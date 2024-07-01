@@ -1,8 +1,9 @@
 <?php
 
-// URL del JSON
+// URL JSON
 $jsonUrl = "https://puzzles.code100.dev/code100/puzzles/100hits/coordinatesystem.json";
-// Aggiunta delle variabili globali point start One e point start phinić
+
+// Global variables
 
 $point_OneStart = array('x' => 145, 'y' => 75);
 $point_OneEnd = array('x' => 165, 'y' => 225);
@@ -10,11 +11,12 @@ $point_OneEnd = array('x' => 165, 'y' => 225);
 $point_ZeroOne = array('x' => 250, 'y' => 150);
 $point_ZeroTwo = array('x' => 410, 'y' => 150);
 
+// Digit 1
 function CheckOne($point) {
 
     global $point_OneStart, $point_OneEnd;
     
-    // Verificare se il punto è dentro al range
+    // Verify if the point is inside the rectangle
     if ($point['x'] >= $point_OneStart['x'] && $point['x'] <= $point_OneEnd['x'] && $point['y'] >= $point_OneStart['y'] && $point['y'] <= $point_OneEnd['y']) {
         return true;
     } 
@@ -22,16 +24,17 @@ function CheckOne($point) {
         return false;
 }
 
+// Digit 0, check from center circle
 function CheckZero($point, $point_Cicle) {
 
-    // Find the distance between the points
+    // Find the distance between the points, from the center of the circle
     $distanceX = abs($point_Cicle['x'] - $point['x']);
     $distanceY = abs($point_Cicle['y'] - $point['y']);
 
     // Radius
     $radius = sqrt(pow($distanceX, 2) + pow($distanceY, 2));
 
-    // Verifica se il raggio è compreso tra 75 e 55
+    // Verify if the point is inside the circle
     if ($radius >= 55 && $radius <= 75) {
         return true;
     } 
@@ -41,43 +44,44 @@ function CheckZero($point, $point_Cicle) {
 }
 
 try {
-    // Tentativo di leggere il contenuto del JSON
+    // Read the JSON from the URL
     $jsonData = file_get_contents($jsonUrl);
     if ($jsonData === false) {
-        throw new Exception("Impossibile leggere il JSON dall'URL.");
+        throw new Exception("JSON file not found / read.");
     }
 
-    // Tentativo di decodificare il JSON
+    // Decode the JSON
     $data = json_decode($jsonData, true);
     if ($data === null) {
-        throw new Exception("Errore nella decodifica del JSON.");
+        throw new Exception("Decoding JSON failed.");
     }
 
     echo "JSON OK. Whidt: {$data['width']}, height: {$data['height']}, Tot Point (n): " . count($data['coords']) . "\n";
 
-    // Estrazione di width e height dal JSON
+    // Get the width and height
     $width = $data['width'];
     $height = $data['height'];
 
+    // Initialize the total points
     $iTotPoint = 0;
 
-    // Iterare attraverso l'array dei punti
+    // Loop through the points in coords
     foreach ($data['coords'] as $coord) {
 
-        // Creazione di un array per il punto
+        // Create an array with the x and y coordinates
         $point = array('x' => $coord[0], 'y' => $coord[1]);
 
-        // Esegui la funzione 1_CheckOne passando il punto
+        // Check if the point is inside the rectangle
         if (CheckOne($point)) {
-            // Incrementa il valore di $iTotPoint
+            // Found a point inside the rectangle
             $iTotPoint++;
         }
         else if (CheckZero($point,$point_ZeroOne)) {
-            // Incrementa il valore di $iTotPoint
+            // Found a point inside the first zero
             $iTotPoint++;
         }   
         else if (CheckZero($point,$point_ZeroTwo)) {
-            // Incrementa il valore di $iTotPoint
+            // Found a point inside the second zero
             $iTotPoint++;
         }
     }   
